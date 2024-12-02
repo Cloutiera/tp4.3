@@ -1,0 +1,161 @@
+
+from random import randint
+from enum import Enum
+from dataclasses import dataclass
+
+
+@dataclass
+class Item:
+    quantity: int
+    name: str
+    def __eq__(self, other):
+        return self.name == other.name
+
+
+class SacADos:
+    def __init__(self):
+        self.liste_items = []
+
+    def parcourir(self, objet):
+        try:
+            return self.liste_items.index(objet)
+        except ValueError:
+            return -1
+
+    def ajouter(self, objet):
+        index = self.parcourir(objet)
+        if index != -1:
+            self.liste_items[index].quantity += objet.quantity
+        else:
+            self.liste_items.append(objet)
+
+    def retirer(self, objet):
+        # POUVOIR EFFACER LITEM ET ERREUR SI ESSAI DACHETER QQCHOSE MAIS PAS ASSEZ DARGENT +
+        # TESTER POUR SAVOIR SI LE SAC MARCHE
+        index = self.parcourir(objet)
+        if index != -1:
+            if self.liste_items[index].quantity < objet.quantity:
+                print("error")
+            else:
+                self.liste_items[index].quantity -= objet.quantity
+            if self.liste_items[index].quantity == 0:
+                self.liste_items.remove(objet)
+
+
+
+    def afficher_contenu(self):
+        print("liste")
+        print(self.liste_items)
+
+
+
+
+
+
+
+class Alignement(Enum):
+    LAWFUL_GOOD = 1
+    LAWFUL_NEUTRAL = 2
+    LAWFUL_EVIL = 3
+    NEUTRAL_GOOD = 4
+    TRUE_NEUTRAL = 5
+    NEUTRAL_EVIL = 6
+    CHAOTIC_GOOD = 7
+    CAHOTIC_NEUTRAL = 8
+    CHAOTIC_EVIL = 9
+    NOT_DEFINED = 10
+
+
+def chiffres_eleves():
+    valeurs = []
+    for i in range(1, 4):
+
+        valeur_de = randint(1, 6)
+        valeurs.append(valeur_de)
+    valeurs.sort()
+    del valeurs[0]
+    return sum(valeurs)
+
+
+class Npc:
+    def __init__(self, nom, race, espece, profession, alignement):
+        self.alignement = alignement
+        self.force = chiffres_eleves()
+        self.agilite = chiffres_eleves()
+        self.constitution = chiffres_eleves()
+        self.intelligence = chiffres_eleves()
+        self.sagesse = chiffres_eleves()
+        self.charisme = chiffres_eleves()
+        self.armure = randint(1, 12)
+        self.nom = nom
+        self.race = race
+        self.espece = espece
+        self.point_de_vie = randint(1, 20)
+        self.profession = profession
+
+    def afficher_caracteristiques(self):
+
+        print(f"La valeur de la force est {self.force}")
+        print(f"La valeur de l'agilité est {self.agilite}")
+        print(f"La valeur de la constitution est {self.constitution}")
+        print(f"La valeur de l'intelligence est {self.intelligence}")
+        print(f"La valeur de la sagesse est {self.sagesse}")
+        print(f"La valeur de la charisme est {self.charisme}")
+        print(f"La valeur de l'armure est {self.armure}")
+        print(f"Le nom est {self.nom}")
+        print(f"La race est {self.race}")
+        print(f"L'espèce est {self.espece}")
+        print(f"Le nombre de points de vie est {self.point_de_vie}")
+        print(f"La profession est {self.profession}")
+
+
+class Kobold(Npc):
+    def __init__(self, nom, race, espece, profession):
+
+        super().__init__(nom, race, espece, profession, Alignement)
+
+    def attaquer(self, cible):
+        # recoit la cible en parametre = ? pas un self
+        cible.subir_dommage(self.force + randint(1, 6))
+
+    def subir_dommage(self, qte_dommage):
+        self.point_de_vie -= qte_dommage
+
+    def is_vivant(self):
+        return self.point_de_vie > 0
+
+
+class Hero(Npc):
+    def __init__(self, nom, race, espece, profession, alignement):
+
+        super().__init__(nom, race, espece, profession, alignement)
+        self.sac_a_dos = SacADos()
+        self.sac_a_dos.ajouter(Item(13, "Or"))
+        self.sac_a_dos.ajouter(Item(2, "Or"))
+        self.sac_a_dos.retirer(Item(16, "Or"))
+        self.sac_a_dos.ajouter(Item(10, "argent"))
+        self.sac_a_dos.afficher_contenu()
+
+    def attaquer(self, cible):
+
+        cible.subir_dommage(self.force + randint(1, 6))
+
+    def subir_dommage(self, qte_dommage):
+
+        self.point_de_vie -= qte_dommage
+
+    def is_vivant(self):
+
+        return self.point_de_vie > 0
+
+sad = SacADos()
+
+
+
+hero_1 = Hero("jean", "noir", "chien", "docteur", Alignement.LAWFUL_GOOD)
+kobold = Kobold("Ajkraj", "noir", "chien", "docteur")
+hero_1.is_vivant()
+hero_1.afficher_caracteristiques()
+kobold.attaquer(hero_1)
+
+hero_1.afficher_caracteristiques()
